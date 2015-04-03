@@ -83,7 +83,8 @@
 			
 			// !(C)
 			if (status > 1) {
-				return callback(arg);
+				if (typeof callback === 'function') return callback(arg);
+				else return callback;
 			// !(B)
 			} else if (status === 1) {
 				if ( typeof $.rloader.track[src].timers == 'undefined' ) {
