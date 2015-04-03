@@ -17,19 +17,20 @@ This plugin is very simple, but effective in use.. So Enjoy
 
 ## CSS parameters ##
 
-  * src: <string: the url to the css file>
-  * cache: <true or false>  default: true (see the global settings)
-  * callback: <string or function>  name of your function fired when loading is done
-  * arg: <string or JSON object> arguments, parameters for your callback function
+  * src: (string: the url to the css file)
+  * cache: (true or false)  default: true (see the global settings)
+  * callback: (string or function)  name of your function fired when loading is done
+  * arg: (string or JSON object) arguments, parameters for your callback function
 
 
 ## JS parameters ##
 
-  * src: <string: the url to the js file>
-  * async: <true or false>  default: true  (see the global settings)
-  * cache: <true or false>  default: true  (see the global settings)
-  * callback: <string or function>  name of your function fired when loading is done
-  * arg: <string or JSON object> arguments, parameters for your callback function
+  * src: (string: the url to the js file)
+  * async: (true or false)  default: true  (see the global settings)
+  * cache: (true or false)  default: true  (see the global settings)
+  * callback: (string or function)  name of your function fired when loading is done
+  * arg: (string or JSON object) arguments, parameters for your callback function
+  * excecute: (true or false) default: false, run the script itself e.g. even if cached already
 
 
 ## Events ##
@@ -38,10 +39,10 @@ This plugin is very simple, but effective in use.. So Enjoy
 
 
 > parameters:
-> > func: <string or function>     name of your function fired when loading is done
+> > func: (string or function)     name of your function fired when loading is done
 
 
-> arg:  <string or JSON object>  optional arguments, parameters to parse to your callback function
+> arg:  (string or JSON object)  optional arguments, parameters to parse to your callback function
 
 
 ## Making global settings ##
@@ -50,8 +51,8 @@ You can make global settings that rloader will use as a default for all resource
 When the parameters are omitted in the resources (css or js), the global settings will be used
 as the default !
 
-  * defaultcache:    <true or false>  default: true    (so use browser caching by default)
-  * defaultasync:    <true or false>  default: true    (so load it async by default)
+  * defaultcache:    (true or false)  default: true    (so use browser caching by default)
+  * defaultasync:    (true or false)  default: true    (so load it async by default)
 
 
 # Examples #
@@ -74,7 +75,7 @@ _note: the default async and cache options will be used_
 
 **Loads 2 resources and fires an event when ready**
 ```
-$.rloader([ {src:'/css/widget.css'},{src:'/js/ctpgn.widget.min.js'}, {event:'onready', func:'init_widget', arg:<parameters>} ]);
+$.rloader([ {src:'/css/widget.css'},{src:'/js/ctpgn.widget.min.js'}, {event:'onready', func:'init_widget', arg:(parameters)} ]);
 ```
 _note: the default async and cache options will be used_
 
