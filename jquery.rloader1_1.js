@@ -67,47 +67,28 @@
 			var callback=null;
 			var src	= options.src,
 				async = options.async || false,
+				execute = options.execute || false, // In case we want to embed/execute the script on the page multiple times
 				cache = true,
 				arg	= options.arg || {};
 			if (options.callback) {callback=options.callback;}
 			if (typeof options.cache != 'undefined') {cache=options.cache;}
 	
-			// If status is 0 (set below), then this thing hasn't fired,
+			//
+			// -If status is 0 (set below), then this thing hasn't fired,
 			// -- (A) Trigger download / callback on success
-			// If status is 1 then it has fired but is not done downloading
+			// -- execute is irrelevant (because it will execute anyway)
+			//
+			// -If status is 1 then it has fired but is not done downloading
 			// -- (B) Callback wouldn't get called, trigger a setinterval
-			// If status is 2 then script is downloaded
+			// -- include execute in the interval
+			//
+			// -If status is 2 then script is downloaded
 			// -- (C) just call the callback
+			// -- execute the script
+			// 
 			
 			var status = checkHist(src); // check status
-			
-			// !(C)
-			if (status > 1) {
-				if (typeof callback === 'function') return callback(arg);
-				else return callback;
-			// !(B)
-			} else if (status === 1) {
-				if ( typeof $.rloader.track[src].timers == 'undefined' ) {
-					$.rloader.track[src].timers = [];
-				}
-				// untested
-				// my worry is inheritance of stuff in the closure below
-				// @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Closures#Creating_closures_in_loops.3A_A_common_mistake
-				// but I don't think that applies since this isn't an actual loop, it's one-off
-				var timer_index = $.rloader.track[src].timers.length;
-				$.rloader.track[src].timers[timer_index] = setInterval(function(){
-					if ( checkHist(src) === 2 ) {
-						clearInterval($.rloader.track[src].timers[timer_index]);
-						if (typeof callback == 'function') {
-							callback(arg);
-						}
-					}
-				}, 200);
-			}
-			// !(A)
-			$.rloader.track[src].status = 1;
-
-			$.ajax({
+			var ajax_options = {
 				type: "GET",
 				url: src,
 				async: async,
@@ -119,7 +100,51 @@
 						callback(arg);
 					}
 				}
-			});
+			};
+			
+			// !(C)
+			if (status > 1) {
+				if (execute) {
+					$.ajax(ajax_options); // Since the response is cached it should just execute
+				} else {
+					if (typeof callback === 'function') return callback(arg);
+					else return callback;
+				}
+			// !(B)
+			} else if (status === 1) {
+				if ( typeof $.rloader.track[src].timers == 'undefined' ) {
+					$.rloader.track[src].timers = [];
+				}
+				// untested
+				// my worry is inheritance of stuff in the closure below
+				// @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Closures#Creating_closures_in_loops.3A_A_common_mistake
+				// but I don't think that applies since this isn't an actual loop, it's one-off
+				var timer_index = $.rloader.track[src].timers.length;
+				var timer_fn;
+				if (execute) {
+					timer_fn = function(){
+						if ( checkHist(src) === 2 ) {
+							clearInterval($.rloader.track[src].timers[timer_index]);
+							$.ajax(ajax_options); // Since the response is cached it should just execute
+						}
+					};
+				} else {
+					timer_fn = function(){
+						if ( checkHist(src) === 2 ) {
+							clearInterval($.rloader.track[src].timers[timer_index]);
+							if (typeof callback == 'function') {
+								callback(arg);
+							}
+						}
+					};
+				}
+				$.rloader.track[src].timers[timer_index] = setInterval(timer_fn, 200);
+			// !(A)
+			} else {				
+				$.rloader.track[src].status = 1;
+	
+				$.ajax(ajax_options);
+			}
 		}
 		
 		$.each(list, function(i,res){
